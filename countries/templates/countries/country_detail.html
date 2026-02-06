@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ country.name }} - Détails</title>
+    <style>
+        body { font-family: sans-serif; padding: 40px; background-color: #f4f4f9; }
+        .card { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
+            max-width: 600px; 
+            margin: auto; 
+            text-align: center;
+        }
+        h1 { color: #333; }
+        img.flag-large { width: 150px; border: 1px solid #ccc; margin-bottom: 20px; }
+        .info-item { margin: 15px 0; font-size: 1.1em; border-bottom: 1px solid #eee; padding-bottom: 10px;}
+        .label { font-weight: bold; color: #555; }
+        .btn-back { 
+            display: inline-block; 
+            margin-top: 20px; 
+            padding: 10px 20px; 
+            background-color: #007bff; 
+            color: white; 
+            text-decoration: none; 
+            border-radius: 5px; 
+        }
+        .btn-back:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        {% if country.flag_url %}
+            <img src="{{ country.flag_url }}" alt="Drapeau de {{ country.name }}" class="flag-large">
+        {% endif %}
+        
+        <h1>{{ country.name }}</h1>
+        <p style="color: #888;">Code: {{ country.cca3 }}</p>
+
+        <div class="info-item">
+            <span class="label">Capitale :</span> {{ country.capital|default:"-" }}
+        </div>
+        <div class="info-item">
+            <span class="label">Région :</span> {{ country.region }}
+        </div>
+        <div class="info-item">
+            <span class="label">Sous-région :</span> {{ country.subregion }}
+        </div>
+        <div class="info-item">
+            <span class="label">Population :</span> {{ country.population }} habitants
+        </div>
+        <div class="info-item">
+            <span class="label">Superficie :</span> {{ country.area }} km²
+        </div>
+
+        <a href="{% url 'country_list' %}" class="btn-back">← Retour à la liste</a>
+    </div>
+
+</body>
+</html>

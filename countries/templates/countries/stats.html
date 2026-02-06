@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Statistiques - Globasoft</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background-color: #f4f4f9; }
+        h1, h2 { color: #333; }
+        .dashboard { display: flex; flex-wrap: wrap; gap: 20px; }
+        
+        /* Style des boîtes (Cartes) */
+        .card { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+            flex: 1; 
+            min-width: 300px;
+        }
+        
+        /* Tableaux dans les cartes */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border-bottom: 1px solid #eee; padding: 8px; text-align: left; }
+        th { color: #666; font-size: 0.9em; }
+        
+        /* Gros chiffre pour le total */
+        .big-number { font-size: 3em; font-weight: bold; color: #007bff; text-align: center; }
+        
+        .btn-home { 
+            display: inline-block; margin-bottom: 20px; text-decoration: none; 
+            color: #555; font-weight: bold; 
+        }
+    </style>
+</head>
+<body>
+
+    <a href="{% url 'country_list' %}" class="btn-home">← Retour à la liste</a>
+    <h1> Statistiques Métier</h1>
+
+    <div class="card" style="margin-bottom: 20px; text-align: center;">
+        <h2>Nombre Total de Pays</h2>
+        <div class="big-number">{{ total_countries }}</div>
+    </div>
+
+    <div class="dashboard">
+        
+        <div class="card">
+            <h2> Top 10 Population</h2>
+            <table>
+                <tr><th>Pays</th><th>Habitants</th></tr>
+                {% for country in top_population %}
+                <tr>
+                    <td>{{ country.name }}</td>
+                    <td>{{ country.population }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <div class="card">
+            <h2>km² Top 10 Superficie</h2>
+            <table>
+                <tr><th>Pays</th><th>Surface (km²)</th></tr>
+                {% for country in top_area %}
+                <tr>
+                    <td>{{ country.name }}</td>
+                    <td>{{ country.area }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <div class="card">
+            <h2> Par Région</h2>
+            <table>
+                <tr><th>Région</th><th>Nombre de pays</th></tr>
+                {% for item in regions_distribution %}
+                <tr>
+                    <td>{{ item.region }}</td>
+                    <td><strong>{{ item.total }}</strong></td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+    </div>
+
+</body>
+</html>

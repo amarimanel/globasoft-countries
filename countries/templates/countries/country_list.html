@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Liste des Pays - Globasoft</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .flag { width: 30px; height: auto; border: 1px solid #ccc; }
+    </style>
+</head>
+<body>
+    <div style="background-color: #eee; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+        <form method="GET" action="{% url 'country_list' %}">
+            <input type="text" name="q" placeholder="Rechercher un pays..." value="{{ current_search }}" style="padding: 5px; width: 200px;">
+            
+            <select name="region" style="padding: 5px;">
+                <option value="">Toutes les régions</option>
+                {% for region in regions_list %}
+                    {% if region %} <option value="{{ region }}" {% if current_region == region %}selected{% endif %}>
+                            {{ region }}
+                        </option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+
+            <button type="submit" style="padding: 5px 10px; cursor: pointer;">Filtrer</button>
+            <a href="{% url 'country_list' %}" style="margin-left: 10px; font-size: 0.9em;">Réinitialiser</a>
+        </form>
+    </div>
+
+    <h1>Liste des Pays</h1>
+    <a href="{% url 'stats' %}" style="float: right; padding: 10px 20px; background: #28a745; color: white; text-decoration: none; border-radius: 5px;">
+    Voir les Statistiques 
+    </a>
+    <p>Données provenant de la base locale.</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Drapeau</th>
+                <th>Code (CCA3)</th>
+                <th>Nom</th>
+                <th>Capitale</th>
+                <th>Population</th>
+                <th>Région</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for country in page_obj %}
+            <tr>
+                <td>
+                    {% if country.flag_url %}
+                        <img src="{{ country.flag_url }}" alt="Drapeau" class="flag">
+                    {% else %}
+                        No Flag
+                    {% endif %}
+                </td>
+                <td><strong>{{ country.cca3 }}</strong></td>
+                <td><a href="{% url 'country_detail' country.cca3 %}">
+                    {{ country.name }}
+                    </a>
+                </td>
+                <td>{{ country.capital }}</td>
+                <td>{{ country.population }}</td>
+                <td>{{ country.region }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+    </table>
+    <div style="margin-top: 20px; text-align: center;">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+                <a href="?page=1&q={{ current_search }}&region={{ current_region }}">&laquo; Début</a>
+                <a href="?page={{ page_obj.previous_page_number }}&q={{ current_search }}&region={{ current_region }}">Précédent</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }}.
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}&q={{ current_search }}&region={{ current_region }}">Suivant</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}&q={{ current_search }}&region={{ current_region }}">Fin &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+
+</body>
+</html>
