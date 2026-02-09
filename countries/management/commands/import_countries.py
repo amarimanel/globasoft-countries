@@ -1,40 +1,65 @@
 import requests
 from django.core.management.base import BaseCommand
 from countries.models import Country
+import time
+
+
+
 
 class Command(BaseCommand):
     help = 'Importe les données depuis l\'API RestCountries vers la base de données locale'
 
     def handle(self, *args, **kwargs):
-        self.stdout.write("Démarrage de l'importation...")
+        self.stdout.write("Démarrage de l'importation avec Retry...")
 
-        # L'URL de l'API 
+# L'URL de l'API 
         url = "https://restcountries.com/v3.1/all?fields=name,cca2,cca3,capital,region,subregion,population,area,flags"
-
-        response = requests.get(url)
         
-        # Si l'API ne répond pas code 200, on arrête tout
-        if response.status_code != 200:
-            self.stdout.write(self.style.ERROR('Erreur lors de l\'appel API'))
-            return
+        #Le  Retry api
+        max_retries = 3  
+        delay = 2        
+        data = None      
+#une boucle retry
+        for attempt in range(1, max_retries + 1):
+            try:
+                self.stdout.write(f"Tentative {attempt}/{max_retries}...")
+                response = requests.get(url, timeout=10) # timeout=10 pour eviter que ça charge a l infinie
+                
+                # Si le code est 200 , on sort de la boucle immédiatement
+                if response.status_code == 200:
+                    data = response.json()
+                    self.stdout.write(self.style.SUCCESS("Connexion réussie !"))
+                    break 
+                else:
+                    self.stdout.write(self.style.WARNING(f"Erreur API (Code {response.status_code})..."))
+            
+            except requests.exceptions.RequestException as e:
 
-        # Parsing JSON pour la récup de données
-        countries_data = response.json()
-        self.stdout.write(f"{len(countries_data)} pays trouvés. Insertion en base...")
+                # Si on a une erreur de connexion (coupure internet, DNS...)
+                self.stdout.write(self.style.ERROR(f"Erreur de connexion : {e}"))
 
-        #On traite chaque pays un par un
+
+
+            # Si on n'a pas réussi et qu'il reste des tentatives, on attend
+            if attempt < max_retries:
+                self.stdout.write(f"Attente de {delay} secondes avant réessai...")
+                time.sleep(delay)
+            else:
+                # Si c'était la dernière tentative et que ça a raté
+                self.stdout.write(self.style.ERROR("Abandon après 3 échecs."))
+                return # On arrête tout le script
+        
+
+
+        self.stdout.write(f"{len(data)} pays trouvés. Insertion en base...")
+
         count = 0
-        for item in countries_data:
-            # on nettoie les données, si pas de capitale on met None
+        for item in data:
             capital_value = item.get('capital', [None])[0] if item.get('capital') else None
-          
             flag_value = item.get('flags', {}).get('svg', '')
 
-            # Sauvegarde en Base de données
-            # update ou create, si CCA3 existe déja faut seulement mettre à jour pour eviter les doublons, si pas de CCA3, il va le créer
-        
-            country, created = Country.objects.update_or_create(
-                cca3=item['cca3'], 
+            Country.objects.update_or_create(
+                cca3=item['cca3'],
                 defaults={
                     'name': item['name']['common'],
                     'cca2': item['cca2'],
@@ -47,8 +72,6 @@ class Command(BaseCommand):
                 }
             )
             count += 1
-            
-            # Petite barre de progression simples
             if count % 10 == 0:
                 self.stdout.write(f"Traité : {count} pays...", ending='\r')
 

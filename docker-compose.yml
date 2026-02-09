@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    # On mappe le port 8000 du conteneur sur le port 8000 duPC
+    ports:
+      - "8000:8000"
+    # On crée un volume pour que la base de données persiste même si on éteint le conteneur
+    volumes:
+      - .:/app
