@@ -74,7 +74,7 @@ Prérequis : Python 3.10+ installé.
 
 ---
 
-## 🔗 URLs et Navigation
+##  URLs et Navigation
 
 Une fois le serveur lancé, voici les accès :
 
@@ -97,7 +97,7 @@ Pour les lancer :
 docker-compose exec web python manage.py test
 
 
-**En local :**
+**En Local :**
 
 Bash
 
