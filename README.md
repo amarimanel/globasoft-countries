@@ -4,7 +4,7 @@ Application web développée dans le cadre du test technique Globasoft.
 Elle permet d'importer, de stocker et d'analyser les données des pays via l'API publique RestCountries.
 
 
-## ✨ Fonctionnalités Clés
+##  Fonctionnalités Clés
 
 * **Importation Robuste** : Script de commande personnalisé avec gestion des erreurs et **Retry automatique** (3 tentatives) pour l'API RestCountries.
 * **Consultation** : Liste des pays avec pagination, **recherche textuelle** et **filtres par région**.
@@ -14,11 +14,11 @@ Elle permet d'importer, de stocker et d'analyser les données des pays via l'API
 
 ---
 
-## 🚀 Installation & Démarrage
+##  Installation & Démarrage
 
 Vous avez deux méthodes pour lancer le projet.
 
-### Méthode 1 : Via Docker (Recommandée) 🐳
+### Méthode 1 : Via Docker (Recommandée) 
 L'environnement est entièrement conteneurisé. Prérequis : Docker Desktop installé.
 
 1.  **Lancer le conteneur** :
@@ -37,12 +37,12 @@ L'environnement est entièrement conteneurisé. Prérequis : Docker Desktop inst
 
 ---
 
-### Méthode 2 : Installation Locale (Sans Docker) 💻
+### Méthode 2 : Installation Locale (Sans Docker) 
 Prérequis : Python 3.10+ installé.
 
 1.  **Cloner le projet et créer l'environnement virtuel** :
     ```bash
-    git clone [https://github.com/TON_PSEUDO/globasoft-countries.git](https://github.com/TON_PSEUDO/globasoft-countries.git)
+    git clone [https://github.com/amarimanel/globasoft-countries.git](https://github.com/amarimanel/globasoft-countries.git)
     cd globasoft-countries
     python -m venv venv
     
@@ -87,7 +87,7 @@ Une fois le serveur lancé, voici les accès :
 
 ---
 
-## ✅ Qualité du Code (Tests)
+##  Qualité du Code (Tests)
 
 Le projet inclut des tests unitaires pour valider les modèles et les vues.
 Pour les lancer :
