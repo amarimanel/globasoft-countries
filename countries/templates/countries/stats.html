@@ -1,88 +1,112 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Statistiques - Globasoft</title>
-    <style>
-        body { font-family: sans-serif; padding: 20px; background-color: #f4f4f9; }
-        h1, h2 { color: #333; }
-        .dashboard { display: flex; flex-wrap: wrap; gap: 20px; }
-        
-        /* Style des boîtes (Cartes) */
-        .card { 
-            background: white; 
-            padding: 20px; 
-            border-radius: 8px; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
-            flex: 1; 
-            min-width: 300px;
-        }
-        
-        /* Tableaux dans les cartes */
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border-bottom: 1px solid #eee; padding: 8px; text-align: left; }
-        th { color: #666; font-size: 0.9em; }
-        
-        /* Gros chiffre pour le total */
-        .big-number { font-size: 3em; font-weight: bold; color: #007bff; text-align: center; }
-        
-        .btn-home { 
-            display: inline-block; margin-bottom: 20px; text-decoration: none; 
-            color: #555; font-weight: bold; 
-        }
-    </style>
-</head>
-<body>
+{% extends 'countries/base.html' %}
 
-    <a href="{% url 'country_list' %}" class="btn-home">← Retour à la liste</a>
-    <h1> Statistiques Métier</h1>
+{% block content %}
+<div class="container mt-4">
 
-    <div class="card" style="margin-bottom: 20px; text-align: center;">
-        <h2>Nombre Total de Pays</h2>
-        <div class="big-number">{{ total_countries }}</div>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-primary"><i class="fas fa-chart-line"></i> Analyse des Données</h2>
+        <a href="{% url 'country_list' %}" class="btn btn-outline-secondary shadow-sm">
+            <i class="fas fa-arrow-left"></i> Retour à la liste
+        </a>
     </div>
 
-    <div class="dashboard">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow border-0 bg-primary text-white" style="border-radius: 15px;">
+                <div class="card-body text-center p-3">
+                    <h5 class="mb-0 text-white-50">Nombre total de pays répertoriés</h5>
+                    <h1 class="display-4 fw-bold mb-0">{{ total_countries }}</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
         
-        <div class="card">
-            <h2> Top 10 Population</h2>
-            <table>
-                <tr><th>Pays</th><th>Habitants</th></tr>
-                {% for country in top_population %}
-                <tr>
-                    <td>{{ country.name }}</td>
-                    <td>{{ country.population }}</td>
-                </tr>
-                {% endfor %}
-            </table>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100" style="border-radius: 15px;">
+                <div class="card-body">
+                    <h5 class="card-title text-muted fw-bold mb-4 text-center">Répartition par Région</h5>
+                    <div style="position: relative; height: 300px; width: 100%;">
+                        <canvas id="regionChart"></canvas>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="card">
-            <h2>km² Top 10 Superficie</h2>
-            <table>
-                <tr><th>Pays</th><th>Surface (km²)</th></tr>
-                {% for country in top_area %}
-                <tr>
-                    <td>{{ country.name }}</td>
-                    <td>{{ country.area }}</td>
-                </tr>
-                {% endfor %}
-            </table>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100" style="border-radius: 15px;">
+                <div class="card-body">
+                    <h5 class="card-title text-muted fw-bold mb-4 text-center">Top 10 Population</h5>
+                    <div style="position: relative; height: 300px; width: 100%;">
+                        <canvas id="populationChart"></canvas>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="card">
-            <h2> Par Région</h2>
-            <table>
-                <tr><th>Région</th><th>Nombre de pays</th></tr>
-                {% for item in regions_distribution %}
-                <tr>
-                    <td>{{ item.region }}</td>
-                    <td><strong>{{ item.total }}</strong></td>
-                </tr>
-                {% endfor %}
-            </table>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100" style="border-radius: 15px;">
+                <div class="card-body">
+                    <h5 class="card-title text-muted fw-bold mb-4 text-center">Top 10 Superficie</h5>
+                    <div style="position: relative; height: 300px; width: 100%;">
+                        <canvas id="areaChart"></canvas>
+                    </div>
+                </div>
+            </div>
         </div>
 
     </div>
 
-</body>
-</html>
+    <script>
+        // --- 1. Graphique Circulaire (Régions) ---
+        const ctxRegion = document.getElementById('regionChart').getContext('2d');
+        new Chart(ctxRegion, {
+            type: 'doughnut',
+            data: {
+                labels: [{% for item in regions_distribution %}"{{ item.region|escapejs }}",{% endfor %}],
+                datasets: [{
+                    data: [{% for item in regions_distribution %}{{ item.total }},{% endfor %}],
+                    backgroundColor: ['#0d6efd', '#198754', '#ffc107', '#dc3545', '#0dcaf0', '#6c757d'],
+                    borderWidth: 0
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        // --- 2. Graphique en Barres (Population) ---
+        const ctxPop = document.getElementById('populationChart').getContext('2d');
+        new Chart(ctxPop, {
+            type: 'bar',
+            data: {
+                labels: [{% for c in top_population %}"{{ c.name|escapejs }}",{% endfor %}],
+                datasets: [{
+                    label: 'Habitants',
+                    data: [{% for c in top_population %}{{ c.population }},{% endfor %}],
+                    backgroundColor: '#0d6efd', // Bleu
+                    borderRadius: 5
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+        });
+
+        // --- 3. Graphique en Barres (Superficie) ---
+        const ctxArea = document.getElementById('areaChart').getContext('2d');
+        new Chart(ctxArea, {
+            type: 'bar',
+            data: {
+                labels: [{% for c in top_area %}"{{ c.name|escapejs }}",{% endfor %}],
+                datasets: [{
+                    label: 'Superficie (km²)',
+                    data: [{% for c in top_area %}{{ c.area }},{% endfor %}],
+                    backgroundColor: '#198754', // Vert pour différencier de la population
+                    borderRadius: 5
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+        });
+    </script>
+</div>
+{% endblock %}
